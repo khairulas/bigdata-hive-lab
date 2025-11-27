@@ -1,0 +1,15 @@
+# Ignore Database Data (Very Important!)
+hive_data/
+metastore_db/
+derby.log
+
+# Ignore Jupyter Checkpoints
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+
+# Ignore OS Files
+.DS_Store
+Thumbs.db
+
+# Ignore Docker temporary files
+.docker/
