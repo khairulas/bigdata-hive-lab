@@ -68,4 +68,68 @@ Connection Refused? If beeline fails to connect, the server might still be start
 
 Permission Denied? Re-run the commands in Step 3 of the Quick Start to ensure HDFS is writable.
 
+## Hive & Power BI Integration using ODBC
+
+### Step 1: Install the ODBC Driver
+Power BI does not speak "Hive" natively; it speaks ODBC. You need to install the official driver.
+
+Download the Microsoft Hive ODBC Driver.
+
+Go to Microsoft's official download page (search "Microsoft Hive ODBC Driver").
+
+Or use the direct link for the 64-bit version (assuming you are on 64-bit Windows): Download Here.
+
+Install the .msi file.
+
+### Step 2: Configure the Connection (ODBC DSN)
+We need to create a saved connection setting in Windows.
+
+Press Windows Key and type ODBC Data Sources (64-bit). Open it.
+
+Go to the System DSN tab (so it works for all users).
+
+Click Add...
+
+Select Microsoft Hive ODBC Driver and click Finish.
+
+Fill in the Configuration Form:
+
+Data Source Name: DockerHive (or any name you want).
+
+Host: localhost (or 127.0.0.1).
+
+Port: 10000.
+
+Database: default.
+
+Mechanism: Select User Name (Simple Authentication).
+
+User Name: hive (or root).
+
+Password: (Leave this empty; our Docker setup uses "Simple" mode which trusts any login).
+
+Click "Test".
+
+If it says "SUCCESS", you are ready.
+
+Note: If it fails, ensure your Docker container is running (docker ps) and HiveServer2 is active.
+
+### Step 3: Connect in Power BI
+Open Power BI Desktop.
+
+Click Get Data -> More...
+
+Search for ODBC and select it.
+
+In the dropdown menu, select the DSN you just created (DockerHive).
+
+Click OK.
+
+Navigator Window:
+
+You should see HIVE on the left side.
+
+Expand it to see default and your other databases (like internal_students or external_students).
+
+Select the tables you want and click Load.
 
