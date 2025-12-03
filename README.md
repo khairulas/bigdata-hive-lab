@@ -114,6 +114,90 @@ INSERT INTO lab_students VALUES (500, 'Student A');
 SELECT * FROM lab_students;
 ```
 
+That's a great choice for **Lab 2**. Ingesting raw data and defining external tables on top of it is fundamental to the Data Lake concept.
+
+Here is the new **Lab 2 Exercise** to append to your `README.md` file. This exercise assumes the `ratings.csv` file is available in the root folder of your local project.
+
+-----
+
+## **Lab 2: Data Ingestion and External Tables (CSV)**
+
+**Objective:** Practice the core ETL steps by loading a raw CSV file from the host machine into HDFS and creating a resilient Hive External Table on top of the raw data.
+
+### **Step 1: Ingest Data to HDFS (Terminal Commands)**
+
+The file transfer requires three steps: copy the dataset file into bigdata-hadoop-hive-lab/data directory in the Windows, copying from your Windows host to the container's local `/tmp` directory, and then moving it into HDFS.
+
+1. **Copy the dataset file `ratings.csv` into bigdata-hadoop-hive-lab\data**
+
+2.  **Copy file from Host to NameNode Container**
+    *(This command uses `docker cp` to put the file into the NameNode's temporary folder)*
+
+    ```bash
+    PS C:\docker_project\bigdata-hive-lab> docker cp data/ratings.csv namenode:/tmp/ratings.csv
+    Successfully copied 14.8MB to namenode:/tmp/ratings.csv
+    PS C:\docker_project\bigdata-hive-lab>
+    PS C:\docker_project\bigdata-hive-lab> docker exec -it namenode bash
+    root@4ded240115b2:/#
+    root@4ded240115b2:/# hdfs dfs -mkdir -p /user/data/ratings
+    root@4ded240115b2:/# hdfs dfs -put -f /tmp/ratings.csv /user/data/ratings/ratings.csv
+    2025-12-03 03:14:20,723 INFO sasl.SaslDataTransferClient: SASL encryption trust check: localHostTrusted = false, remoteHostTrusted = false
+    ```
+
+3.  **Upload file from Container to HDFS**
+    *(This command uses the NameNode shell to move the file from the container's `/tmp` into the HDFS storage)*
+
+    ```bash
+    docker exec -it namenode hdfs dfs -mkdir -p /user/data/ratings
+    docker exec -it namenode hdfs dfs -put -f /tmp/ratings.csv /user/data/ratings/ratings.csv
+    ```
+
+### **Step 2: Create Hive External Table (Beeline)**
+
+Now that the raw CSV is in HDFS, we create a Hive table that points directly to that file. We use `EXTERNAL` because dropping the table later will *not* delete the data in HDFS.
+
+1.  **Connect to Hive:**
+
+    ```bash
+    docker exec -it hive-server beeline -u jdbc:hive2://localhost:10000
+    ```
+
+2.  **Run DDL (Data Definition Language):**
+    *(Run this inside the Beeline console)*
+
+    ```sql
+    -- Use the default database
+    USE default; 
+
+    -- Define the External Table structure, pointing to the HDFS location
+    CREATE EXTERNAL TABLE IF NOT EXISTS ratings (
+        userid INT,
+        movieid INT,
+        rating DOUBLE,
+        ts BIGINT
+    )
+    ROW FORMAT DELIMITED
+    FIELDS TERMINATED BY ','
+    STORED AS TEXTFILE
+    LOCATION 'hdfs://namenode:9000/user/data/ratings'
+    TBLPROPERTIES ("skip.header.line.count"="1");
+    ```
+
+### **Step 3: Verify Data**
+
+Check that Hive can read the raw data:
+
+```sql
+SELECT * FROM ratings LIMIT 10;
+
+-- Find the average rating
+SELECT AVG(rating), COUNT(movieid) FROM ratings;
+```
+
+-----
+
+*Note: You can append this entire section directly after the "Lab Exercises" header in your existing `README.md` file.*
+
 **Troubleshooting**
 Connection Refused? If beeline fails to connect, the server might still be starting. Wait 30 more seconds or run docker logs hive-server to check progress.
 
