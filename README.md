@@ -93,21 +93,28 @@ Once you are inside the **NameNode** shell (`docker exec -it namenode bash`), yo
 
 Inside the Beeline console:
 
-```sql
--- 1. Create a raw folder in HDFS
--- (Run in terminal: docker exec -it namenode hdfs dfs -mkdir -p /data/external_lab)
--- (Run in terminal: docker exec -it namenode hdfs dfs -chmod -R 777 /data/external_lab)
 
--- 2. Create the external table
+1. Create a raw folder in HDFS
+```bash
+docker exec -it namenode hdfs dfs -mkdir -p /data/external_lab
+docker exec -it namenode hdfs dfs -chmod -R 777 /data/external_lab
+```
+
+2. Create the external table
+```sql
 CREATE EXTERNAL TABLE lab_students (id INT, name STRING)
 STORED AS PARQUET
 LOCATION 'hdfs://namenode:9000/data/external_lab';
+```
 
--- 3. Insert and Select
+3. Insert and Select
+
+```sql
 INSERT INTO lab_students VALUES (500, 'Student A');
 SELECT * FROM lab_students;
 ```
-Troubleshooting
+
+**Troubleshooting**
 Connection Refused? If beeline fails to connect, the server might still be starting. Wait 30 more seconds or run docker logs hive-server to check progress.
 
 Permission Denied? Re-run the commands in Step 3 of the Quick Start to ensure HDFS is writable.
