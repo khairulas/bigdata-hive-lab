@@ -14,7 +14,7 @@ A fully containerized Big Data environment for teaching Hadoop HDFS, Apache Hive
 1. **Clone the Repository**
     Open your terminal (PowerShell or CMD) and run:
     ```bash
-    git clone [https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git](https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git)
+    git clone https://github.com/khairulas/bigdata-hive-lab.git
     ```
 
 2.  **Navigate to the Directory**
