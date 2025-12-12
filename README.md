@@ -1,3 +1,4 @@
+
 # Big Data Lab: Hadoop & Hive on Docker
 
 A fully containerized Big Data environment for teaching Hadoop HDFS, Apache Hive 4.0, MapReduce, and Data Warehousing concepts.
@@ -8,13 +9,29 @@ A fully containerized Big Data environment for teaching Hadoop HDFS, Apache Hive
 * **ODBC Driver** (optional, for Power BI integration).
 
 
+## 📥 Installation
+
+1. **Clone the Repository**
+    Open your terminal (PowerShell or CMD) and run:
+    ```bash
+    git clone [https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git](https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git)
+    ```
+
+2.  **Navigate to the Directory**
+    ```bash
+    cd bigdata-hadoop-hive-hue-lab
+    ```
+
+
 ## 🚀 Quick Start
 
-### 1. Start the Cluster
-Open your terminal in this folder and run:
+### 1\. Start the Cluster
+
+Run this command to start the stack:
+
 ```bash
 docker-compose up -d
-````
+```
 
 ### 2\. Wait for Initialization
 
@@ -178,11 +195,12 @@ hdfs dfs -put input.txt /user/mapreduce/input/
 ```
 
 #### Step 2: Run the MapReduce Job
-We will use the built-in Hadoop example JAR to run the `wordcount` program. We use `grep -v sources` to ensure we pick the executable JAR, not the source code.
+
+We will use the built-in Hadoop example JAR to run the `wordcount` program. We use a dynamic command (`grep -v sources`) to automatically find the correct executable JAR file.
 
 ```bash
 # Run this inside the NameNode shell
-yarn jar /opt/hadoop-3.2.1/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.1.jar wordcount /user/mapreduce/input /user/mapreduce/output
+yarn jar /opt/hadoop-3.2.1/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.1.jar wordcount /user/mapreduce/input /user/mapreduce/outpu
 ```
 
 *Note: If the output directory `/user/mapreduce/output` already exists, the job will fail. You must delete it first using `hdfs dfs -rm -r /user/mapreduce/output`.*
@@ -248,4 +266,3 @@ SQL     1
   * **Permission Denied?** Re-run the commands in "Step 3: Set Permissions" of the Quick Start to ensure HDFS is writable.
 
 <!-- end list -->
-
