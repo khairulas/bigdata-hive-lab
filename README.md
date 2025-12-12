@@ -1,39 +1,44 @@
 # Big Data Lab: Hadoop & Hive on Docker
 
-A fully containerized Big Data environment for teaching Hadoop HDFS and Apache Hive 4.0.
+A fully containerized Big Data environment for teaching Hadoop HDFS, Apache Hive 4.0, MapReduce, and Data Warehousing concepts.
 
 ## Prerequisites
-* Docker Desktop installed and running.
-* 4GB+ RAM allocated to Docker.
+* **Docker Desktop** installed and running.
+* **4GB+ RAM** allocated to Docker resources.
+* **ODBC Driver** (optional, for Power BI integration).
 
-## Quick Start
+
+## 🚀 Quick Start
 
 ### 1. Start the Cluster
 Open your terminal in this folder and run:
 ```bash
 docker-compose up -d
-```
+````
 
-2. Wait for Initialization
-Wait about 60 seconds for the containers to fully initialize and for HDFS to leave "Safe Mode".
+### 2\. Wait for Initialization
 
-3. Set Permissions (Run once after starting)
+Wait about **60 seconds** for the containers to fully initialize and for HDFS to leave "Safe Mode".
+
+### 3\. Set Permissions (Run once after starting)
+
 Run these commands in your terminal to unlock HDFS and create the necessary folders:
 
-```Bash
-
+```bash
 docker exec -it namenode hdfs dfs -chmod -R 777 /
 docker exec -it namenode hdfs dfs -mkdir -p /user/hive/warehouse
 docker exec -it namenode hdfs dfs -chmod -R 777 /user/hive/warehouse
 ```
 
-4. Connect to Hive
+### 4\. Connect to Hive CLI
+
 Access the Hive SQL CLI (Beeline) using this command:
 
-```Bash
-
+```bash
 docker exec -it hive-server beeline -u jdbc:hive2://localhost:10000
 ```
+
+-----
 
 ## 🛠 Advanced: Container Access & Administration
 
@@ -56,9 +61,7 @@ Use these commands to open a Linux terminal inside the specific container.
 
 ### 2\. Basic Hadoop Administration Cheat Sheet
 
-Once you are inside the **NameNode** shell (`docker exec -it namenode bash`), you can run these administrative commands:
-
-#### **File System Operations**
+Once inside the **NameNode** shell, you can run these commands:
 
 | Action | Command |
 | :--- | :--- |
@@ -66,204 +69,183 @@ Once you are inside the **NameNode** shell (`docker exec -it namenode bash`), yo
 | **Create directory** | `hdfs dfs -mkdir -p /user/mydata` |
 | **Upload file** | `hdfs dfs -put /local/path/file.csv /hdfs/path/` |
 | **Delete file** | `hdfs dfs -rm /path/to/file` |
-| **Delete folder** | `hdfs dfs -rm -r /path/to/folder` |
 | **Check file content** | `hdfs dfs -cat /path/to/file` |
-
-#### **Permissions & Ownership**
-
-| Action | Command |
-| :--- | :--- |
-| **Change Permissions** | `hdfs dfs -chmod -R 777 /user/hive` |
-| **Change Owner** | `hdfs dfs -chown -R hive:supergroup /user/hive` |
-
-#### **Cluster Health & Maintenance**
-
-| Action | Command |
-| :--- | :--- |
 | **Check Disk Usage** | `hdfs dfs -du -h /` |
-| **Cluster Status** | `hdfs dfsadmin -report` |
 | **Check Safe Mode** | `hdfs dfsadmin -safemode get` |
 | **Leave Safe Mode** | `hdfs dfsadmin -safemode leave` |
-*(Note: If HDFS refuses to write files immediately after startup, it is likely in "Safe Mode". Run the leave command to fix it.)*
-
-
-## Lab Exercises
-
-### Exercise 1: External Tables
-
-Inside the Beeline console:
-
-
-1. Create a raw folder in HDFS
-```bash
-docker exec -it namenode hdfs dfs -mkdir -p /data/external_lab
-docker exec -it namenode hdfs dfs -chmod -R 777 /data/external_lab
-```
-
-2. Create the external table
-```sql
-CREATE EXTERNAL TABLE lab_students (id INT, name STRING)
-STORED AS PARQUET
-LOCATION 'hdfs://namenode:9000/data/external_lab';
-```
-
-3. Insert and Select
-
-```sql
-INSERT INTO lab_students VALUES (500, 'Student A');
-SELECT * FROM lab_students;
-```
-
-That's a great choice for **Lab 2**. Ingesting raw data and defining external tables on top of it is fundamental to the Data Lake concept.
-
-Here is the new **Lab 2 Exercise** to append to your `README.md` file. This exercise assumes the `ratings.csv` file is available in the root folder of your local project.
 
 -----
 
-## **Lab 2: Data Ingestion and External Tables (CSV)**
+## 🧪 Lab Exercises
 
-**Objective:** Practice the core ETL steps by loading a raw CSV file from the host machine into HDFS and creating a resilient Hive External Table on top of the raw data.
+### Exercise 1: External Tables (Parquet)
 
-### **Step 1: Ingest Data to HDFS (Terminal Commands)**
+**Objective:** Create an external table manually inside HDFS.
 
-The file transfer requires three steps: copy the dataset file into bigdata-hadoop-hive-lab/data directory in the Windows, copying from your Windows host to the container's local `/tmp` directory, and then moving it into HDFS.
-
-1. **Copy the dataset file `ratings.csv` into bigdata-hadoop-hive-lab\data**
-
-2.  **Copy file from Host to NameNode Container**
-    *(This command uses `docker cp` to put the file into the NameNode's temporary folder)*
+1.  **Create a raw folder in HDFS** (Run in terminal):
 
     ```bash
-    PS C:\docker_project\bigdata-hive-lab> docker cp data/ratings.csv namenode:/tmp/ratings.csv
-    Successfully copied 14.8MB to namenode:/tmp/ratings.csv
-    PS C:\docker_project\bigdata-hive-lab>
-    PS C:\docker_project\bigdata-hive-lab> docker exec -it namenode bash
-    root@4ded240115b2:/#
-    root@4ded240115b2:/# hdfs dfs -mkdir -p /user/data/ratings
-    root@4ded240115b2:/# hdfs dfs -put -f /tmp/ratings.csv /user/data/ratings/ratings.csv
-    2025-12-03 03:14:20,723 INFO sasl.SaslDataTransferClient: SASL encryption trust check: localHostTrusted = false, remoteHostTrusted = false
+    docker exec -it namenode hdfs dfs -mkdir -p /data/external_lab
+    docker exec -it namenode hdfs dfs -chmod -R 777 /data/external_lab
     ```
 
-3.  **Upload file from Container to HDFS**
-    *(This command uses the NameNode shell to move the file from the container's `/tmp` into the HDFS storage)*
+2.  **Create the external table** (Run in Beeline):
+
+    ```sql
+    CREATE EXTERNAL TABLE lab_students (id INT, name STRING)
+    STORED AS PARQUET
+    LOCATION 'hdfs://namenode:9000/data/external_lab';
+    ```
+
+3.  **Insert and Select** (Run in Beeline):
+
+    ```sql
+    INSERT INTO lab_students VALUES (500, 'Student A');
+    SELECT * FROM lab_students;
+    ```
+
+### Exercise 2: Data Ingestion and External Tables (CSV)
+
+**Objective:** Practice ETL by loading a raw CSV file from the host machine into HDFS and creating a resilient Hive External Table.
+
+#### Step 1: Ingest Data to HDFS (Terminal Commands)
+
+1.  **Prepare Data:** Ensure `ratings.csv` is in your local `data/` folder.
+
+2.  **Copy file from Host to NameNode Container:**
+
+    ```bash
+    docker cp data/ratings.csv namenode:/tmp/ratings.csv
+    ```
+
+3.  **Upload file from Container to HDFS:**
 
     ```bash
     docker exec -it namenode hdfs dfs -mkdir -p /user/data/ratings
     docker exec -it namenode hdfs dfs -put -f /tmp/ratings.csv /user/data/ratings/ratings.csv
     ```
 
-### **Step 2: Create Hive External Table (Beeline)**
+#### Step 2: Create Hive External Table (Beeline)
 
-Now that the raw CSV is in HDFS, we create a Hive table that points directly to that file. We use `EXTERNAL` because dropping the table later will *not* delete the data in HDFS.
+Run the following SQL in Beeline to map the data:
 
-1.  **Connect to Hive:**
+```sql
+USE default; 
 
-    ```bash
-    docker exec -it hive-server beeline -u jdbc:hive2://localhost:10000
-    ```
+CREATE EXTERNAL TABLE IF NOT EXISTS ratings (
+    userid INT,
+    movieid INT,
+    rating DOUBLE,
+    ts BIGINT
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE
+LOCATION 'hdfs://namenode:9000/user/data/ratings'
+TBLPROPERTIES ("skip.header.line.count"="1");
+```
 
-2.  **Run DDL (Data Definition Language):**
-    *(Run this inside the Beeline console)*
-
-    ```sql
-    -- Use the default database
-    USE default; 
-
-    -- Define the External Table structure, pointing to the HDFS location
-    CREATE EXTERNAL TABLE IF NOT EXISTS ratings (
-        userid INT,
-        movieid INT,
-        rating DOUBLE,
-        ts BIGINT
-    )
-    ROW FORMAT DELIMITED
-    FIELDS TERMINATED BY ','
-    STORED AS TEXTFILE
-    LOCATION 'hdfs://namenode:9000/user/data/ratings'
-    TBLPROPERTIES ("skip.header.line.count"="1");
-    ```
-
-### **Step 3: Verify Data**
-
-Check that Hive can read the raw data:
+#### Step 3: Verify Data
 
 ```sql
 SELECT * FROM ratings LIMIT 10;
-
--- Find the average rating
 SELECT AVG(rating), COUNT(movieid) FROM ratings;
+```
+
+### Exercise 3: MapReduce Data Analysis (WordCount)
+
+**Objective:** Execute a classic MapReduce job using YARN to analyze text data. We will count the frequency of every word in a text file.
+
+#### Step 1: Create Input Data
+
+Run these commands in your **local terminal** to generate a simple text file inside the NameNode:
+
+```bash
+# 1. Enter the NameNode
+docker exec -it namenode bash
+
+# 2. Create a dummy text file
+echo "Hadoop is great" > input.txt
+echo "Hive is SQL on Hadoop" >> input.txt
+echo "Big Data is the future" >> input.txt
+echo "Hadoop uses MapReduce" >> input.txt
+
+# 3. Create an input directory in HDFS
+hdfs dfs -mkdir -p /user/mapreduce/input
+
+# 4. Upload the file to HDFS
+hdfs dfs -put input.txt /user/mapreduce/input/
+```
+
+#### Step 2: Run the MapReduce Job
+We will use the built-in Hadoop example JAR to run the `wordcount` program. We use `grep -v sources` to ensure we pick the executable JAR, not the source code.
+
+```bash
+# Run this inside the NameNode shell
+yarn jar /opt/hadoop-3.2.1/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.1.jar wordcount /user/mapreduce/input /user/mapreduce/output
+```
+
+*Note: If the output directory `/user/mapreduce/output` already exists, the job will fail. You must delete it first using `hdfs dfs -rm -r /user/mapreduce/output`.*
+
+#### Step 3: View Results
+
+Read the output file generated by the Reducer:
+
+```bash
+hdfs dfs -cat /user/mapreduce/output/part-r-00000
+```
+
+**Expected Output:**
+
+```
+Big     1
+Data    1
+Hadoop  3
+Hive    1
+MapReduce 1
+SQL     1
+...
 ```
 
 -----
 
-*Note: You can append this entire section directly after the "Lab Exercises" header in your existing `README.md` file.*
-
-**Troubleshooting**
-Connection Refused? If beeline fails to connect, the server might still be starting. Wait 30 more seconds or run docker logs hive-server to check progress.
-
-Permission Denied? Re-run the commands in Step 3 of the Quick Start to ensure HDFS is writable.
-
-# Hive & Power BI Integration using ODBC
+## 📊 Integration: Hive & Power BI
 
 ### Step 1: Install the ODBC Driver
-Power BI does not speak "Hive" natively; it speaks ODBC. You need to install the official driver.
 
-1. Download the Microsoft Hive ODBC Driver.
+1.  Download the **Microsoft Hive ODBC Driver** (64-bit) from the official Microsoft website.
+2.  Install the `.msi` file.
 
-   * Go to Microsoft''s official download page (search "Microsoft Hive ODBC Driver").
+### Step 2: Configure ODBC Data Source
 
-   * Or use the direct link for the 64-bit version (assuming you are on 64-bit Windows): Download Here.
-
-2. Install the .msi file.
-
-### Step 2: Configure the Connection (ODBC DSN)
-We need to create a saved connection setting in Windows.
-
-1. Press Windows Key and type ODBC Data Sources (64-bit). Open it.
-   
-2. Go to the System DSN tab (so it works for all users).
-   
-3. Click Add...
-   
-4. Select Microsoft Hive ODBC Driver and click Finish
-   
-5. Fill in the Configuration Form:
-
-   * Data Source Name: DockerHive (or any name you want).
-
-   * Host: localhost (or 127.0.0.1).
-
-   * Port: 10000.
-
-   * Database: default.
-
-   * Mechanism: Select User Name (Simple Authentication).
-
-   * User Name: hive (or root).
-
-   * Password: (Leave this empty; our Docker setup uses "Simple" mode which trusts any login).
-
-6. Click "Test".
-
-  * If it says "SUCCESS", you are ready.
-
-  * Note: If it fails, ensure your Docker container is running (docker ps) and HiveServer2 is active.
+1.  Open Windows Search and run **ODBC Data Sources (64-bit)**.
+2.  Go to the **System DSN** tab and click **Add...**
+3.  Select **Microsoft Hive ODBC Driver** and click Finish.
+4.  Configure as follows:
+      * **Data Source Name:** `DockerHive`
+      * **Host:** `localhost`
+      * **Port:** `10000`
+      * **Database:** `default`
+      * **Mechanism:** `User Name`
+      * **User Name:** `hive`
+      * **Password:** *(Leave Empty)*
+5.  Click **Test**. If it says "SUCCESS", you are ready.
 
 ### Step 3: Connect in Power BI
-1. Open Power BI Desktop.
 
-2. Click Get Data -> More...
-   
-3. Search for ODBC and select it.
-   
-4. In the dropdown menu, select the DSN you just created (DockerHive).
-   
-5. Click OK.
+1.  Open **Power BI Desktop**.
+2.  Click **Get Data -\> More... -\> ODBC**.
+3.  Select `DockerHive` from the dropdown.
+4.  In the Navigator, expand **HIVE** to see your tables (`lab_students`, `ratings`).
+5.  Select tables and click **Load**.
 
-6. Navigator Window:
+-----
 
-   * You should see HIVE on the left side.
+## ❓ Troubleshooting
 
-   * Expand it to see default and your other da*tabases (like internal_students or external_students).
+  * **Connection Refused?** If Beeline fails to connect, the server might still be starting. Wait 30 more seconds or run `docker logs hive-server` to check progress.
 
-   * Select the tables you want and click Load.
+  * **Permission Denied?** Re-run the commands in "Step 3: Set Permissions" of the Quick Start to ensure HDFS is writable.
+
+<!-- end list -->
+
