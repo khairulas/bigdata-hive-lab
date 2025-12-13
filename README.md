@@ -19,7 +19,7 @@ A fully containerized Big Data environment for teaching Hadoop HDFS, Apache Hive
 
 2.  **Navigate to the Directory**
     ```bash
-    cd bigdata-hive-lab
+    cd bigdata-hadoop-hive-lab
     ```
 
 
