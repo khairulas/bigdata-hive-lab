@@ -68,6 +68,7 @@ services:
     volumes:
       - ./hive-site.xml:/opt/hive/conf/hive-site.xml
       - ./lib/postgresql-42.7.4.jar:/opt/hive/lib/postgresql-42.7.4.jar
+      - ./data/hive_home:/home/hive
     depends_on:
       - namenode
       - postgres
