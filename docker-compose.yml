@@ -48,6 +48,7 @@ services:
     volumes:
       # PERSIST HIVE SCHEMA (The Table Definitions)
       - ./postgres_data:/var/lib/postgresql/data
+      - ./init-hive-db.sql:/docker-entrypoint-initdb.d/init-hive-db.sql
     networks:
       - bigdata-net
 

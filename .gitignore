@@ -13,3 +13,11 @@ Thumbs.db
 
 # Ignore Docker temporary files
 .docker/
+
+# Ignore Docker Data Folders
+postgres_data/
+namenode_data/
+datanode_data/
+data/
+metastore_db/
+*.log
