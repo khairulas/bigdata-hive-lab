@@ -51,8 +51,12 @@ services:
       - ./init-hive-db.sql:/docker-entrypoint-initdb.d/init-hive-db.sql
     networks:
       - bigdata-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hive"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  # --- COMPUTE LAYER (Hive) ---
   # --- COMPUTE LAYER (Hive) ---
   hive-server:
     image: apache/hive:4.0.0
@@ -70,8 +74,12 @@ services:
       - ./lib/postgresql-42.7.4.jar:/opt/hive/lib/postgresql-42.7.4.jar
       - ./data/hive_home:/home/hive
     depends_on:
-      - namenode
-      - postgres
+      namenode:
+        condition: service_started
+      datanode:
+        condition: service_started
+      postgres:
+        condition: service_healthy
     networks:
       - bigdata-net
     
@@ -97,9 +105,10 @@ services:
     volumes:
       - ./hue.ini:/usr/share/hue/desktop/conf/z-hue.ini
     depends_on:
-      - namenode
-      - hive-server
-      - postgres
+      namenode:
+        condition: service_started
+      postgres:
+        condition: service_health
     networks:
       - bigdata-net
 
