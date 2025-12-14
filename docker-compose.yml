@@ -108,7 +108,7 @@ services:
       namenode:
         condition: service_started
       postgres:
-        condition: service_health
+        condition: service_healthy
     networks:
       - bigdata-net
 
